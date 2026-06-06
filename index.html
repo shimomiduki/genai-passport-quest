@@ -1,0 +1,1858 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b8f84">
+  <title>生成AIパスポート Quest</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7f5;
+      --surface: #ffffff;
+      --surface-2: #ecf4f1;
+      --ink: #182421;
+      --muted: #63716d;
+      --line: #dce6e1;
+      --teal: #0b8f84;
+      --teal-dark: #076c65;
+      --coral: #e85f4d;
+      --gold: #f4b840;
+      --blue: #276ef1;
+      --green: #21a36b;
+      --shadow: 0 12px 34px rgba(29, 48, 44, 0.13);
+      --radius: 8px;
+      --tap: 48px;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(11, 143, 132, 0.12), rgba(244, 247, 245, 0) 260px),
+        var(--bg);
+      letter-spacing: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible {
+      outline: 3px solid rgba(39, 110, 241, 0.35);
+      outline-offset: 2px;
+    }
+
+    .app {
+      width: min(100%, 520px);
+      margin: 0 auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top) 14px calc(env(safe-area-inset-bottom) + 16px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 0 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      filter: drop-shadow(0 6px 10px rgba(11, 143, 132, 0.2));
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: clamp(1.05rem, 4vw, 1.32rem);
+      line-height: 1.05;
+      font-weight: 850;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .brand-sub {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 650;
+    }
+
+    .icon-btn {
+      width: var(--tap);
+      height: var(--tap);
+      display: inline-grid;
+      place-items: center;
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: 0 6px 18px rgba(29, 48, 44, 0.1);
+      flex: 0 0 auto;
+    }
+
+    .icon {
+      width: 21px;
+      height: 21px;
+      display: block;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .screen {
+      display: none;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .home-main {
+      gap: 14px;
+    }
+
+    .hero-band {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 132px;
+      align-items: center;
+      gap: 10px;
+      min-height: 160px;
+      padding: 16px;
+      border: 1px solid rgba(11, 143, 132, 0.16);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(236, 244, 241, 0.96)),
+        var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-copy {
+      min-width: 0;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--teal-dark);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .hero-copy h2 {
+      margin: 8px 0 0;
+      font-size: clamp(1.45rem, 8vw, 2.2rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .hero-copy p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .hero-art {
+      width: 132px;
+      max-width: 100%;
+      justify-self: end;
+    }
+
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      min-height: 76px;
+      padding: 10px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .metric strong {
+      font-size: clamp(1.05rem, 5vw, 1.45rem);
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .section-title {
+      margin: 5px 0 2px;
+      font-size: 0.86rem;
+      font-weight: 850;
+      color: var(--muted);
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .mode-btn {
+      min-height: 112px;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 8px 22px rgba(29, 48, 44, 0.08);
+    }
+
+    .mode-btn.primary {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
+
+    .mode-btn.warn {
+      background: #fff7e7;
+      border-color: #f7dfad;
+    }
+
+    .mode-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .mode-head svg {
+      flex: 0 0 auto;
+    }
+
+    .mode-name {
+      font-weight: 850;
+      font-size: clamp(1rem, 4.5vw, 1.16rem);
+      line-height: 1.18;
+      overflow-wrap: anywhere;
+    }
+
+    .mode-meta {
+      font-size: 0.78rem;
+      line-height: 1.4;
+      color: currentColor;
+      opacity: 0.78;
+    }
+
+    .stage-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .stage-btn {
+      min-height: 58px;
+      padding: 11px 12px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .stage-dot {
+      width: 12px;
+      height: 32px;
+      border-radius: 99px;
+      background: var(--teal);
+    }
+
+    .stage-name {
+      font-size: 0.96rem;
+      font-weight: 800;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .stage-score {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .quiz-header {
+      position: sticky;
+      top: env(safe-area-inset-top);
+      z-index: 5;
+      padding: 8px 0 10px;
+      background:
+        linear-gradient(180deg, rgba(244, 247, 245, 0.98), rgba(244, 247, 245, 0.9));
+      backdrop-filter: blur(12px);
+    }
+
+    .hud-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .hud-pill {
+      min-height: 38px;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.84rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .progress-wrap {
+      min-width: 0;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 850;
+      margin-bottom: 5px;
+    }
+
+    .bar {
+      height: 10px;
+      border-radius: 99px;
+      background: #d7e5e0;
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--teal), var(--gold));
+      transition: width 220ms ease;
+    }
+
+    .quiz-main {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 10px;
+    }
+
+    .question-panel {
+      padding: 16px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .chapter-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 5px 9px;
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      color: var(--teal-dark);
+      font-size: 0.75rem;
+      font-weight: 850;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    .multi-tag {
+      margin-left: 6px;
+      color: var(--coral);
+    }
+
+    .question-text {
+      margin: 14px 0 0;
+      font-size: clamp(1.12rem, 5vw, 1.42rem);
+      line-height: 1.48;
+      font-weight: 850;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .answers {
+      display: grid;
+      gap: 9px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      min-height: 62px;
+      padding: 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      text-align: left;
+      box-shadow: 0 7px 18px rgba(29, 48, 44, 0.07);
+    }
+
+    .answer-btn[disabled] {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .answer-key {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 0.9rem;
+    }
+
+    .answer-text {
+      min-width: 0;
+      line-height: 1.45;
+      font-weight: 750;
+      overflow-wrap: anywhere;
+    }
+
+    .answer-btn.selected {
+      border-color: var(--blue);
+      background: #edf4ff;
+    }
+
+    .answer-btn.correct {
+      border-color: rgba(33, 163, 107, 0.6);
+      background: #eaf8f1;
+    }
+
+    .answer-btn.correct .answer-key {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .answer-btn.wrong {
+      border-color: rgba(232, 95, 77, 0.58);
+      background: #fff0ed;
+    }
+
+    .answer-btn.wrong .answer-key {
+      background: var(--coral);
+      color: #fff;
+    }
+
+    .action-row {
+      position: sticky;
+      bottom: calc(env(safe-area-inset-bottom) + 8px);
+      z-index: 4;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 9px;
+      padding-top: 2px;
+    }
+
+    .primary-btn,
+    .ghost-btn {
+      min-height: var(--tap);
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 850;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .primary-btn {
+      background: var(--teal);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(11, 143, 132, 0.22);
+    }
+
+    .primary-btn:disabled {
+      background: #a9bbb5;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .ghost-btn {
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .explain {
+      display: none;
+      padding: 13px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: #fffdf7;
+    }
+
+    .explain.show {
+      display: block;
+    }
+
+    .judge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 900;
+      margin-bottom: 7px;
+    }
+
+    .judge.good {
+      color: var(--green);
+    }
+
+    .judge.bad {
+      color: var(--coral);
+    }
+
+    .explain p {
+      margin: 0;
+      color: #4b5c57;
+      font-size: 0.92rem;
+      line-height: 1.58;
+      overflow-wrap: anywhere;
+    }
+
+    .result-main {
+      justify-content: center;
+      gap: 13px;
+      padding: 14px 0;
+    }
+
+    .result-panel {
+      padding: 18px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .rank-badge {
+      width: min(180px, 46vw);
+      margin: 0 auto 10px;
+      display: block;
+    }
+
+    .result-score {
+      margin: 0;
+      font-size: clamp(2.1rem, 12vw, 3.3rem);
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: 0;
+    }
+
+    .result-title {
+      margin: 7px 0 0;
+      font-size: 1.05rem;
+      font-weight: 850;
+    }
+
+    .result-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.9rem;
+    }
+
+    .breakdown {
+      display: grid;
+      gap: 8px;
+    }
+
+    .break-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 52px;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--line);
+    }
+
+    .break-name {
+      min-width: 0;
+      font-size: 0.87rem;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .break-score {
+      text-align: right;
+      font-size: 0.86rem;
+      color: var(--muted);
+      font-weight: 850;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(env(safe-area-inset-bottom) + 16px);
+      transform: translate(-50%, 20px);
+      width: min(calc(100% - 28px), 480px);
+      min-height: 48px;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      background: #14201e;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 750;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 20;
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.24);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .source-note {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .source-note a {
+      color: var(--teal-dark);
+      font-weight: 800;
+    }
+
+    @media (max-width: 390px) {
+      .app {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .hero-band {
+        grid-template-columns: minmax(0, 1fr) 92px;
+        padding: 13px;
+      }
+
+      .hero-art {
+        width: 92px;
+      }
+
+      .mode-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (min-width: 780px) {
+      .app {
+        padding-top: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+          <defs>
+            <linearGradient id="brandGradient" x1="9" x2="56" y1="8" y2="58">
+              <stop stop-color="#0b8f84"></stop>
+              <stop offset="0.58" stop-color="#21a36b"></stop>
+              <stop offset="1" stop-color="#f4b840"></stop>
+            </linearGradient>
+          </defs>
+          <rect x="8" y="7" width="48" height="52" rx="8" fill="url(#brandGradient)"></rect>
+          <path d="M21 21h22M21 32h14M21 43h22" stroke="#fff" stroke-width="4" stroke-linecap="round"></path>
+          <circle cx="43" cy="32" r="5" fill="#fff"></circle>
+        </svg>
+        <div>
+          <h1 class="brand-title">生成AIパスポート Quest</h1>
+          <div class="brand-sub">オリジナル練習問題</div>
+        </div>
+      </div>
+      <button class="icon-btn" id="resetBtn" type="button" aria-label="進捗をリセット" title="進捗をリセット">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg>
+      </button>
+    </header>
+
+    <main class="screen active home-main" id="homeScreen"></main>
+    <main class="screen" id="quizScreen"></main>
+    <main class="screen result-main" id="resultScreen"></main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "genai-passport-quest-v1";
+
+    const CHAPTERS = [
+      { id: "ai", label: "第1章 AI（人工知能）", short: "AI基礎", color: "#0b8f84" },
+      { id: "genai", label: "第2章 生成AI", short: "生成AI", color: "#276ef1" },
+      { id: "trend", label: "第3章 現在の生成AIの動向", short: "動向", color: "#e85f4d" },
+      { id: "literacy", label: "第4章 情報リテラシー・AI社会原則", short: "リスク", color: "#21a36b" },
+      { id: "prompt", label: "第5章 プロンプト制作と実例", short: "プロンプト", color: "#f4b840" }
+    ];
+
+    const QUESTIONS = [
+      {
+        id: "ai-01",
+        chapter: "ai",
+        type: "single",
+        text: "大量の取引履歴と「不正かどうか」の正解ラベルを使ってモデルを学習する方法として最も適切なものはどれですか。",
+        choices: ["教師あり学習", "教師なし学習", "強化学習", "ルールベース推論"],
+        answer: [0],
+        explanation: "入力と正解ラベルのペアから関係を学ぶため、教師あり学習に該当します。"
+      },
+      {
+        id: "ai-02",
+        chapter: "ai",
+        type: "single",
+        text: "購買データを似た傾向の顧客グループに分けたい場合、代表的に使われる手法はどれですか。",
+        choices: ["クラスタリング", "過学習", "バックアップ", "暗号化"],
+        answer: [0],
+        explanation: "正解ラベルなしでデータの近さや構造からグループを見つける処理はクラスタリングです。"
+      },
+      {
+        id: "ai-03",
+        chapter: "ai",
+        type: "single",
+        text: "学習データには高精度だが未知データで性能が落ちる状態を何と呼びますか。",
+        choices: ["過学習", "次元削減", "転移学習", "自己注意"],
+        answer: [0],
+        explanation: "学習データに合わせ込みすぎ、汎化性能が低い状態を過学習と呼びます。"
+      },
+      {
+        id: "ai-04",
+        chapter: "ai",
+        type: "single",
+        text: "すでに学習済みの画像認識モデルを別の画像分類に活用する考え方として最も近いものはどれですか。",
+        choices: ["転移学習", "量子化", "フィッシング", "匿名加工"],
+        answer: [0],
+        explanation: "あるタスクで得た知識を関連タスクに使う方法が転移学習です。"
+      },
+      {
+        id: "ai-05",
+        chapter: "ai",
+        type: "single",
+        text: "ニューラルネットワークにおける重みは、主に何を表しますか。",
+        choices: ["入力の影響度を調整する値", "データの著作権情報", "通信経路の暗号鍵", "学習を禁止する規則"],
+        answer: [0],
+        explanation: "重みは入力信号の強さを調整し、学習によって更新されます。"
+      },
+      {
+        id: "ai-06",
+        chapter: "ai",
+        type: "single",
+        text: "画像認識で局所的な特徴を捉える処理に強いニューラルネットワークはどれですか。",
+        choices: ["CNN", "RNN", "LSTM", "n-gramモデル"],
+        answer: [0],
+        explanation: "CNNは畳み込みによって画像のエッジや形状など局所特徴を捉えるのに向きます。"
+      },
+      {
+        id: "ai-07",
+        chapter: "ai",
+        type: "single",
+        text: "時系列や文章のような順序を持つデータ処理で使われてきたモデルはどれですか。",
+        choices: ["RNN", "GAN", "VAE", "SVMのみ"],
+        answer: [0],
+        explanation: "RNNは過去の状態を次の計算に反映でき、系列データ処理に使われてきました。"
+      },
+      {
+        id: "ai-08",
+        chapter: "ai",
+        type: "single",
+        text: "現在広く実用化されているAIの多くを表す説明として適切なものはどれですか。",
+        choices: ["特定の目的に特化した弱いAI", "人間の全能力を完全に再現した強いAI", "必ず意識を持つAI", "学習データを一切必要としないAI"],
+        answer: [0],
+        explanation: "実用化されている多くのAIは、特定の用途に能力を発揮する弱いAIです。"
+      },
+      {
+        id: "ai-09",
+        chapter: "ai",
+        type: "single",
+        text: "強化学習の説明として最も適切なものはどれですか。",
+        choices: ["行動の結果として得られる報酬を最大化するように学習する", "正解ラベルのみを暗号化する", "画像を必ず高解像度に変換する", "個人情報を削除して保存する"],
+        answer: [0],
+        explanation: "強化学習ではエージェントが試行錯誤し、報酬が大きくなる方策を学びます。"
+      },
+      {
+        id: "ai-10",
+        chapter: "ai",
+        type: "single",
+        text: "多数の特徴量を少ない軸にまとめ、可視化や計算負荷の低減に役立てる手法はどれですか。",
+        choices: ["次元削減", "スミッシング", "プロンプト注入", "透かし加工"],
+        answer: [0],
+        explanation: "次元削減は情報をなるべく保ちながら特徴量の次元数を減らす考え方です。"
+      },
+      {
+        id: "ai-11",
+        chapter: "ai",
+        type: "single",
+        text: "ディープラーニングが従来の機械学習と比べて得意とする点として適切なものはどれですか。",
+        choices: ["画像や音声など複雑な特徴を階層的に学習しやすい", "常に少量データだけで最高精度になる", "人間の確認が不要になる", "法律上の責任をAIが負う"],
+        answer: [0],
+        explanation: "深い層を持つモデルは、複雑な特徴表現を段階的に学習できます。"
+      },
+      {
+        id: "ai-12",
+        chapter: "ai",
+        type: "multi",
+        text: "AIブームの背景として適切なものを2つ選んでください。",
+        choices: ["計算資源の向上", "利用できるデータ量の増加", "インターネット利用の全面禁止", "すべてのモデルの説明が完全になったこと"],
+        answer: [0, 1],
+        explanation: "近年のAI発展には、大規模データ、GPUなどの計算資源、アルゴリズムの進歩が関係しています。"
+      },
+      {
+        id: "genai-01",
+        chapter: "genai",
+        type: "single",
+        text: "生成AIの説明として最も適切なものはどれですか。",
+        choices: ["学習したパターンをもとに文章・画像・音声などを新たに生成するAI", "表計算だけを自動化するAI", "通信を必ず匿名化するAI", "人間の入力を一切受け付けないAI"],
+        answer: [0],
+        explanation: "生成AIはデータのパターンを学習し、新しいコンテンツを生成するAIです。"
+      },
+      {
+        id: "genai-02",
+        chapter: "genai",
+        type: "single",
+        text: "GANで偽物らしいデータを作る役割を持つものはどれですか。",
+        choices: ["生成器", "識別器", "監査ログ", "ハッシュ関数"],
+        answer: [0],
+        explanation: "GANでは生成器がデータを生成し、識別器が本物か偽物かを見分けようとします。"
+      },
+      {
+        id: "genai-03",
+        chapter: "genai",
+        type: "single",
+        text: "VAEにおいて、データの特徴を圧縮して表す空間として最も近いものはどれですか。",
+        choices: ["潜在空間", "公開鍵", "Cookie", "監査証跡"],
+        answer: [0],
+        explanation: "VAEはデータを潜在空間にエンコードし、そこからデコードして生成します。"
+      },
+      {
+        id: "genai-04",
+        chapter: "genai",
+        type: "single",
+        text: "Transformerで文中の単語同士の関係を捉える中核的な仕組みはどれですか。",
+        choices: ["自己注意機構", "ランサムウェア", "QRコード", "匿名加工情報"],
+        answer: [0],
+        explanation: "自己注意機構は、系列内の各要素が他の要素をどれだけ参照するかを計算します。"
+      },
+      {
+        id: "genai-05",
+        chapter: "genai",
+        type: "single",
+        text: "Transformerで単語の順序情報をモデルに伝えるために使われるものはどれですか。",
+        choices: ["位置エンコーディング", "商標登録", "二要素認証", "スミッシング"],
+        answer: [0],
+        explanation: "自己注意だけでは順序を直接扱いにくいため、位置エンコーディングで順序情報を加えます。"
+      },
+      {
+        id: "genai-06",
+        chapter: "genai",
+        type: "single",
+        text: "GPTのように前の文脈から次の語を順に予測して文章を作る性質を表す言葉はどれですか。",
+        choices: ["自己回帰", "匿名加工", "標的型攻撃", "クラウド同期"],
+        answer: [0],
+        explanation: "自己回帰モデルは、これまでの出力を条件に次のトークンを予測します。"
+      },
+      {
+        id: "genai-07",
+        chapter: "genai",
+        type: "single",
+        text: "BERTの事前学習で、文中の一部の単語を隠して予測するタスクはどれですか。",
+        choices: ["MLM", "RLHF", "DDoS", "OCR"],
+        answer: [0],
+        explanation: "MLMはMasked Language Modelの略で、隠された語を予測するタスクです。"
+      },
+      {
+        id: "genai-08",
+        chapter: "genai",
+        type: "single",
+        text: "人間の評価を使って対話モデルの応答を調整する考え方として最も近いものはどれですか。",
+        choices: ["RLHF", "VAE", "CNN", "SQLインジェクション"],
+        answer: [0],
+        explanation: "RLHFは人間のフィードバックを用いた強化学習により、望ましい応答へ近づける方法です。"
+      },
+      {
+        id: "genai-09",
+        chapter: "genai",
+        type: "single",
+        text: "生成AIが事実と異なる内容をもっともらしく出力する問題は何と呼ばれますか。",
+        choices: ["ハルシネーション", "フィッシング", "クラスタリング", "正規化"],
+        answer: [0],
+        explanation: "もっともらしい誤情報を出す現象はハルシネーションと呼ばれます。"
+      },
+      {
+        id: "genai-10",
+        chapter: "genai",
+        type: "single",
+        text: "テキスト、画像、音声など複数種類の情報を扱えるAIの性質はどれですか。",
+        choices: ["マルチモーダル", "単一認証", "ローカル保存", "量子耐性"],
+        answer: [0],
+        explanation: "複数のモダリティを組み合わせて処理できる性質をマルチモーダルと呼びます。"
+      },
+      {
+        id: "genai-11",
+        chapter: "genai",
+        type: "single",
+        text: "汎用的に学習済みのモデルを、自社の目的に合わせて追加学習することは何と呼ばれますか。",
+        choices: ["ファインチューニング", "スミッシング", "著作権譲渡", "位置エンコーディング"],
+        answer: [0],
+        explanation: "ファインチューニングは学習済みモデルを特定用途に合わせて調整する手法です。"
+      },
+      {
+        id: "genai-12",
+        chapter: "genai",
+        type: "multi",
+        text: "生成AIの出力のばらつきに影響しやすいパラメータを2つ選んでください。",
+        choices: ["Temperature", "Top-p", "パスワードの文字数", "画面の明るさ"],
+        answer: [0, 1],
+        explanation: "TemperatureやTop-pは、次に選ぶトークンの確率分布や候補範囲に影響します。"
+      },
+      {
+        id: "trend-01",
+        chapter: "trend",
+        type: "single",
+        text: "テキスト生成AIの活用例として不適切なものはどれですか。",
+        choices: ["最新の公的統計を確認なしで確定情報として提示する", "文章案を作る", "要約を作る", "問い合わせ回答の下書きを作る"],
+        answer: [0],
+        explanation: "最新情報や正確性が重要な内容は、生成AIの出力だけで確定せず一次情報で確認します。"
+      },
+      {
+        id: "trend-02",
+        chapter: "trend",
+        type: "single",
+        text: "画像生成AIを業務で使う際の基本姿勢として適切なものはどれですか。",
+        choices: ["権利侵害やブランド利用ルールを確認する", "出力画像は必ず著作権侵害にならないとみなす", "人物写真なら本人同意は不要とみなす", "プロンプトは秘密情報を含めるほどよい"],
+        answer: [0],
+        explanation: "生成物の権利、肖像、商標、社内ルールを確認して使う必要があります。"
+      },
+      {
+        id: "trend-03",
+        chapter: "trend",
+        type: "single",
+        text: "データ拡張の例として最も適切なものはどれですか。",
+        choices: ["画像を回転・反転して学習データのバリエーションを増やす", "全データを無断で外部公開する", "パスワードを短くする", "同じ誤字を増やす"],
+        answer: [0],
+        explanation: "データ拡張は、変換により学習データの多様性を増やす手法です。"
+      },
+      {
+        id: "trend-04",
+        chapter: "trend",
+        type: "single",
+        text: "音声生成AIの利用で特に注意すべきリスクはどれですか。",
+        choices: ["本人になりすました音声による詐欺", "画面解像度の低下", "電卓機能の停止", "画像ファイルの拡張子変更"],
+        answer: [0],
+        explanation: "声のクローンやなりすましは詐欺、偽情報、本人確認の突破に悪用されるおそれがあります。"
+      },
+      {
+        id: "trend-05",
+        chapter: "trend",
+        type: "single",
+        text: "ディープフェイクに関する説明として適切なものはどれですか。",
+        choices: ["人物の顔や声を合成し、偽情報やなりすましに使われる危険がある", "必ず本人の同意を取得する仕組みでしか作れない", "法律上の問題が一切生じない", "AIでは検出の必要がないほど単純である"],
+        answer: [0],
+        explanation: "ディープフェイクは高度な合成を可能にし、詐欺や名誉毀損などのリスクがあります。"
+      },
+      {
+        id: "trend-06",
+        chapter: "trend",
+        type: "single",
+        text: "生成AIを使った偽情報への対応として最も適切なものはどれですか。",
+        choices: ["出典、日時、複数の信頼できる情報源を確認する", "拡散されていれば正しいと判断する", "画像が鮮明なら本物と判断する", "AI生成なら必ず誤情報と判断する"],
+        answer: [0],
+        explanation: "偽情報対策では、一次情報や複数の信頼できる情報源で確認する姿勢が重要です。"
+      },
+      {
+        id: "trend-07",
+        chapter: "trend",
+        type: "single",
+        text: "検索連携型の生成AIを使う場合でも必要な確認はどれですか。",
+        choices: ["引用元が実在し、内容と日付が合っているか確認する", "検索連携なら常に完全に正しいとみなす", "出典URLは見なくてよい", "古い情報ほど信頼できるとみなす"],
+        answer: [0],
+        explanation: "検索連携でも要約や引用の誤りが起こるため、元情報の確認が必要です。"
+      },
+      {
+        id: "trend-08",
+        chapter: "trend",
+        type: "single",
+        text: "動画生成AIの業務利用で確認すべき点として最も適切なものはどれですか。",
+        choices: ["素材、出演者、音楽、商標の利用権限", "動画の色が派手かどうかだけ", "生成時間が短いかどうかだけ", "社内確認は不要であること"],
+        answer: [0],
+        explanation: "動画は人物、音声、音楽、ロゴなど複数の権利が関わるため確認が必要です。"
+      },
+      {
+        id: "trend-09",
+        chapter: "trend",
+        type: "single",
+        text: "生成AIの出力を社外資料に使うときの適切な対応はどれですか。",
+        choices: ["内容の正確性、権利、機密情報混入の有無を確認する", "AIの出力なのでレビューしない", "誤りがあってもAIに責任があるとする", "出典不明のまま確定資料にする"],
+        answer: [0],
+        explanation: "業務利用では人間が責任を持って事実確認、権利確認、機密確認を行います。"
+      },
+      {
+        id: "trend-10",
+        chapter: "trend",
+        type: "single",
+        text: "画像のリマスタリングや高解像度化を使う際に注意すべきことはどれですか。",
+        choices: ["元画像の権利や改変可否を確認する", "画質が上がれば自由に商用利用できる", "古い写真は必ず権利が消滅している", "AI処理後は肖像権がなくなる"],
+        answer: [0],
+        explanation: "加工しても元素材の権利や人物の権利が消えるわけではありません。"
+      },
+      {
+        id: "trend-11",
+        chapter: "trend",
+        type: "single",
+        text: "カスタマーサポートに生成AIを導入する際の設計として適切なものはどれですか。",
+        choices: ["重要判断や例外対応では人間に引き継ぐ導線を用意する", "すべての回答をAIだけで確定する", "顧客の個人情報を無制限に学習へ使う", "誤回答をログに残さない"],
+        answer: [0],
+        explanation: "顧客対応では誤回答や個人情報の扱いに備え、人間の確認や引き継ぎが重要です。"
+      },
+      {
+        id: "trend-12",
+        chapter: "trend",
+        type: "multi",
+        text: "生成AIを安全に活用する姿勢として適切なものを2つ選んでください。",
+        choices: ["出力を検証してから使う", "利用規約や社内ルールを確認する", "便利なら機密情報をそのまま入力する", "AIの回答は必ず法的助言として扱う"],
+        answer: [0, 1],
+        explanation: "検証、規約確認、社内ルール順守が基本です。機密情報や専門判断は慎重に扱います。"
+      },
+      {
+        id: "literacy-01",
+        chapter: "literacy",
+        type: "single",
+        text: "SMSを使って偽サイトへ誘導する攻撃は何と呼ばれますか。",
+        choices: ["スミッシング", "ヴィッシング", "クラスタリング", "ファインチューニング"],
+        answer: [0],
+        explanation: "SMSを使うフィッシングはスミッシングと呼ばれます。"
+      },
+      {
+        id: "literacy-02",
+        chapter: "literacy",
+        type: "single",
+        text: "電話で相手をだまして情報を引き出す攻撃として最も近いものはどれですか。",
+        choices: ["ヴィッシング", "GAN", "次元削減", "Few-shot"],
+        answer: [0],
+        explanation: "音声通話を利用したフィッシングはヴィッシングです。"
+      },
+      {
+        id: "literacy-03",
+        chapter: "literacy",
+        type: "single",
+        text: "業務端末のファイルを暗号化し、復旧と引き換えに金銭を要求するマルウェアはどれですか。",
+        choices: ["ランサムウェア", "エンコーダ", "プロンプト", "位置エンコーディング"],
+        answer: [0],
+        explanation: "ランサムウェアはデータを暗号化するなどして身代金を要求します。"
+      },
+      {
+        id: "literacy-04",
+        chapter: "literacy",
+        type: "single",
+        text: "悪意あるQRコードへの対策として適切なものはどれですか。",
+        choices: ["読み取り後のURLや遷移先を確認してから開く", "QRコードなら必ず安全と判断する", "短縮URLなら必ず公式と判断する", "公共の掲示物なら確認不要とする"],
+        answer: [0],
+        explanation: "QRコードは見た目だけでは遷移先が分からないため、URL確認が必要です。"
+      },
+      {
+        id: "literacy-05",
+        chapter: "literacy",
+        type: "single",
+        text: "公共Wi-Fiの利用で適切な行動はどれですか。",
+        choices: ["重要な通信では暗号化やVPN、正規SSID確認を意識する", "同じ施設名のSSIDならすべて安全とみなす", "パスワードなしのWi-Fiで機密情報を送る", "警告画面を必ず無視する"],
+        answer: [0],
+        explanation: "偽アクセスポイントなどの危険があるため、通信の安全性と接続先の確認が重要です。"
+      },
+      {
+        id: "literacy-06",
+        chapter: "literacy",
+        type: "single",
+        text: "生成AIに個人情報を入力する前に確認すべきことはどれですか。",
+        choices: ["利用規約、社内ルール、入力データの扱われ方", "AIの返答が速いかどうかだけ", "画面の色だけ", "プロンプトの文字数だけ"],
+        answer: [0],
+        explanation: "個人情報や機密情報は、サービス側での保存・学習利用・共有範囲を確認します。"
+      },
+      {
+        id: "literacy-07",
+        chapter: "literacy",
+        type: "single",
+        text: "要配慮個人情報に該当し得るものとして最も適切なものはどれですか。",
+        choices: ["病歴や信条など慎重な扱いが必要な情報", "天気予報", "公開されている製品価格", "匿名の乱数"],
+        answer: [0],
+        explanation: "病歴、信条、社会的身分などは要配慮個人情報として特に慎重な扱いが必要です。"
+      },
+      {
+        id: "literacy-08",
+        chapter: "literacy",
+        type: "single",
+        text: "著作権に関する業務利用の姿勢として適切なものはどれですか。",
+        choices: ["既存著作物に依拠した出力の可能性を確認する", "AI生成なら著作権侵害は絶対に起きない", "出力物は必ず自由に再販売できる", "引用元の確認は不要である"],
+        answer: [0],
+        explanation: "生成物が既存著作物に似る場合など、権利侵害の可能性を確認する必要があります。"
+      },
+      {
+        id: "literacy-09",
+        chapter: "literacy",
+        type: "single",
+        text: "有名人の顔や声を広告素材に使う場合、特に関係しやすい権利はどれですか。",
+        choices: ["肖像権やパブリシティ権", "次元削減", "強化学習", "Top-p"],
+        answer: [0],
+        explanation: "人物の顔や声の商業利用では、肖像権やパブリシティ権への配慮が必要です。"
+      },
+      {
+        id: "literacy-10",
+        chapter: "literacy",
+        type: "single",
+        text: "人間中心のAI社会原則に近い考え方はどれですか。",
+        choices: ["人間の尊厳や多様性、持続可能性を尊重する", "AIの判断を常に無条件で優先する", "透明性を下げるほどよい", "利用者教育は不要とする"],
+        answer: [0],
+        explanation: "人間中心の考え方では、尊厳、多様性、持続可能性、教育、透明性などが重視されます。"
+      },
+      {
+        id: "literacy-11",
+        chapter: "literacy",
+        type: "single",
+        text: "ソーシャルエンジニアリング攻撃の説明として適切なものはどれですか。",
+        choices: ["人の心理や信頼を悪用して情報を引き出す攻撃", "画像の解像度を上げる技術", "モデルの出力をランダムにする設定", "文章を要約する技法"],
+        answer: [0],
+        explanation: "人の不注意、親切心、権威への弱さなどを悪用する攻撃です。"
+      },
+      {
+        id: "literacy-12",
+        chapter: "literacy",
+        type: "multi",
+        text: "AI利活用で重視される原則として適切なものを2つ選んでください。",
+        choices: ["透明性", "アカウンタビリティ", "無断学習の常時推奨", "説明を一切残さないこと"],
+        answer: [0, 1],
+        explanation: "透明性やアカウンタビリティは、AIを適切に利活用するうえで重要な観点です。"
+      },
+      {
+        id: "prompt-01",
+        chapter: "prompt",
+        type: "single",
+        text: "例を与えず、指示だけでタスクを実行させるプロンプティングはどれですか。",
+        choices: ["Zero-shotプロンプティング", "Few-shotプロンプティング", "クラスタリング", "スミッシング"],
+        answer: [0],
+        explanation: "Zero-shotは例示なしで指示のみを与える方法です。"
+      },
+      {
+        id: "prompt-02",
+        chapter: "prompt",
+        type: "single",
+        text: "望ましい入力と出力の例をいくつか示してから回答させる方法はどれですか。",
+        choices: ["Few-shotプロンプティング", "ランサムウェア", "匿名加工", "強いAI"],
+        answer: [0],
+        explanation: "Few-shotは少数の例を示し、形式や判断基準をモデルに伝える方法です。"
+      },
+      {
+        id: "prompt-03",
+        chapter: "prompt",
+        type: "single",
+        text: "良いプロンプトに含める要素として最も適切なものはどれですか。",
+        choices: ["目的、背景、入力、出力形式", "曖昧な依頼だけ", "機密情報をなるべく多く", "回答の検証を禁止する指示"],
+        answer: [0],
+        explanation: "目的や背景、入力データ、出力形式を明確にすると期待する出力に近づきます。"
+      },
+      {
+        id: "prompt-04",
+        chapter: "prompt",
+        type: "single",
+        text: "LLMが特に苦手としやすいタスクとして適切なものはどれですか。",
+        choices: ["厳密な文字数指定や正確な計算", "文章の下書き", "要点の整理", "表現の言い換え"],
+        answer: [0],
+        explanation: "LLMは確率的に文章を生成するため、厳密な計算や文字数制御では確認が必要です。"
+      },
+      {
+        id: "prompt-05",
+        chapter: "prompt",
+        type: "single",
+        text: "社外秘の議事録を生成AIで要約したい場合の適切な対応はどれですか。",
+        choices: ["利用可能な環境か確認し、必要に応じて匿名化・要約範囲を調整する", "無料サービスへそのまま貼り付ける", "参加者名や顧客名を増やして入力する", "社内ルールは確認しない"],
+        answer: [0],
+        explanation: "機密情報は入力先の規約や社内ルールを確認し、必要に応じて匿名化します。"
+      },
+      {
+        id: "prompt-06",
+        chapter: "prompt",
+        type: "single",
+        text: "文章の読者を「専門家向け」から「初心者向け」に変える依頼として適切なものはどれですか。",
+        choices: ["対象読者、語彙レベル、残すべき用語を指定する", "ただ「いい感じに」とだけ書く", "元文を見せずに任せる", "専門用語を必ず増やすよう指示する"],
+        answer: [0],
+        explanation: "対象読者や語彙のレベル、維持する用語を明示すると、目的に合う変換がしやすくなります。"
+      },
+      {
+        id: "prompt-07",
+        chapter: "prompt",
+        type: "single",
+        text: "生成AIにタスクを一緒に進めてもらう依頼として適切なものはどれですか。",
+        choices: ["不足情報があれば先に質問してから進めてください", "不明点があっても推測だけで確定してください", "確認質問を禁止します", "根拠を一切書かないでください"],
+        answer: [0],
+        explanation: "不明点を質問させる指示は、要件漏れや誤った前提を減らすのに役立ちます。"
+      },
+      {
+        id: "prompt-08",
+        chapter: "prompt",
+        type: "single",
+        text: "回答の創造性を上げたいときに調整対象になりやすい設定はどれですか。",
+        choices: ["Temperature", "SSID", "肖像権", "バックアップ世代数のみ"],
+        answer: [0],
+        explanation: "Temperatureを上げると出力の多様性が増えやすく、下げると安定しやすくなります。"
+      },
+      {
+        id: "prompt-09",
+        chapter: "prompt",
+        type: "single",
+        text: "ハルシネーション対策として適切なプロンプト運用はどれですか。",
+        choices: ["不明な点は不明と答え、根拠や確認先を示すよう求める", "必ず断定するよう求める", "出典を作るよう求める", "検証しない前提で使う"],
+        answer: [0],
+        explanation: "根拠提示、不明時の明示、一次情報確認を組み合わせると誤情報のリスクを下げられます。"
+      },
+      {
+        id: "prompt-10",
+        chapter: "prompt",
+        type: "single",
+        text: "メール文の作成でプロンプトに入れると有効な情報はどれですか。",
+        choices: ["相手、目的、トーン、必ず含める要点", "送信者の全パスワード", "不要な個人情報の一覧", "出力確認を禁止する条件"],
+        answer: [0],
+        explanation: "相手、目的、トーン、要点を指定すると、目的に沿ったメール案を得やすくなります。"
+      },
+      {
+        id: "prompt-11",
+        chapter: "prompt",
+        type: "single",
+        text: "LLMの説明として最も適切なものはどれですか。",
+        choices: ["大量のテキストから言語のパターンを学習した大規模な言語モデル", "画像の明るさだけを調整する装置", "電話番号を暗号化する制度", "AI利用を禁止する法律"],
+        answer: [0],
+        explanation: "LLMはLarge Language Modelの略で、大量データから言語パターンを学習したモデルです。"
+      },
+      {
+        id: "prompt-12",
+        chapter: "prompt",
+        type: "multi",
+        text: "業務で生成AIの回答を使う前に行うべき確認を2つ選んでください。",
+        choices: ["事実関係の確認", "機密情報や個人情報の混入確認", "確認せず即公開", "誤りをAIの責任にすること"],
+        answer: [0, 1],
+        explanation: "業務利用では、事実確認と情報管理の確認を人間が行う必要があります。"
+      }
+    ];
+
+    const state = {
+      stats: loadStats(),
+      session: null,
+      toastTimer: null
+    };
+
+    const screens = {
+      home: document.getElementById("homeScreen"),
+      quiz: document.getElementById("quizScreen"),
+      result: document.getElementById("resultScreen")
+    };
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if (confirm("学習進捗をリセットしますか？")) {
+        localStorage.removeItem(STORAGE_KEY);
+        state.stats = loadStats();
+        state.session = null;
+        stopTimer();
+        showToast("進捗をリセットしました");
+        renderHome();
+        showScreen("home");
+      }
+    });
+
+    renderHome();
+
+    function defaultStats() {
+      return {
+        total: 0,
+        correct: 0,
+        xp: 0,
+        streak: 0,
+        bestStreak: 0,
+        mistakes: {},
+        chapters: {}
+      };
+    }
+
+    function loadStats() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? { ...defaultStats(), ...JSON.parse(raw) } : defaultStats();
+      } catch {
+        return defaultStats();
+      }
+    }
+
+    function saveStats() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.stats));
+    }
+
+    function showScreen(name) {
+      Object.values(screens).forEach(screen => screen.classList.remove("active"));
+      screens[name].classList.add("active");
+    }
+
+    function chapterById(id) {
+      return CHAPTERS.find(chapter => chapter.id === id);
+    }
+
+    function icon(name) {
+      const paths = {
+        play: '<polygon points="8 5 19 12 8 19 8 5"></polygon>',
+        clock: '<circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>',
+        trophy: '<path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"></path><path d="M7 6H4a3 3 0 0 0 3 3"></path><path d="M17 6h3a3 3 0 0 1-3 3"></path>',
+        target: '<circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle>',
+        book: '<path d="M4 5a3 3 0 0 1 3-3h13v17H7a3 3 0 0 0-3 3V5Z"></path><path d="M4 19a3 3 0 0 1 3-3h13"></path>',
+        shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>',
+        home: '<path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M10 20v-6h4v6"></path>',
+        arrow: '<path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path>',
+        check: '<path d="m20 6-11 11-5-5"></path>',
+        x: '<path d="M18 6 6 18"></path><path d="m6 6 12 12"></path>',
+        spark: '<path d="M12 2v5"></path><path d="M12 17v5"></path><path d="M4.2 4.2 7.8 7.8"></path><path d="m16.2 16.2 3.6 3.6"></path><path d="M2 12h5"></path><path d="M17 12h5"></path><path d="m4.2 19.8 3.6-3.6"></path><path d="m16.2 7.8 3.6-3.6"></path>',
+        rotate: '<path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path>'
+      };
+      return `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name] || paths.spark}</svg>`;
+    }
+
+    function heroSvg() {
+      return `
+        <svg class="hero-art" viewBox="0 0 180 180" aria-hidden="true">
+          <defs>
+            <linearGradient id="cardGrad" x1="28" y1="24" x2="154" y2="156">
+              <stop stop-color="#0b8f84"></stop>
+              <stop offset="0.55" stop-color="#276ef1"></stop>
+              <stop offset="1" stop-color="#f4b840"></stop>
+            </linearGradient>
+          </defs>
+          <rect x="26" y="18" width="120" height="150" rx="12" fill="#fff" stroke="#dce6e1" stroke-width="4"></rect>
+          <rect x="40" y="36" width="92" height="54" rx="8" fill="url(#cardGrad)"></rect>
+          <circle cx="65" cy="63" r="10" fill="#fff"></circle>
+          <circle cx="107" cy="63" r="10" fill="#fff"></circle>
+          <path d="M67 112h42M55 130h66M55 146h38" stroke="#182421" stroke-width="8" stroke-linecap="round"></path>
+          <path d="M139 32c9 0 16 7 16 16M151 21c15 5 25 18 26 34" stroke="#e85f4d" stroke-width="7" stroke-linecap="round"></path>
+          <circle cx="144" cy="139" r="23" fill="#21a36b"></circle>
+          <path d="m134 139 7 7 15-18" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      `;
+    }
+
+    function rankSvg(rank) {
+      const fill = rank === "S" ? "#f4b840" : rank === "A" ? "#0b8f84" : rank === "B" ? "#276ef1" : "#e85f4d";
+      return `
+        <svg class="rank-badge" viewBox="0 0 220 150" aria-hidden="true">
+          <path d="M110 10 141 32l38-2 10 37 27 26-18 34 2 38-37 10-26 27-34-18-38 2-10-37-27-26 18-34-2-38 37-10 26-27Z" fill="${fill}" opacity=".95"></path>
+          <circle cx="110" cy="75" r="48" fill="#fff"></circle>
+          <text x="110" y="95" text-anchor="middle" font-size="62" font-weight="900" fill="${fill}" font-family="system-ui, sans-serif">${rank}</text>
+        </svg>
+      `;
+    }
+
+    function renderHome() {
+      const accuracy = state.stats.total ? Math.round(state.stats.correct / state.stats.total * 100) : 0;
+      const level = Math.floor(state.stats.xp / 120) + 1;
+      const weakCount = Object.keys(state.stats.mistakes || {}).length;
+
+      screens.home.innerHTML = `
+        <section class="hero-band">
+          <div class="hero-copy">
+            <div class="hero-kicker">${icon("shield")} 60問シラバス対応</div>
+            <h2>すきま時間で合格力を上げる</h2>
+            <p>四肢択一と複数選択を、ステージ攻略のテンポで練習。</p>
+          </div>
+          ${heroSvg()}
+        </section>
+
+        <section class="stats-strip" aria-label="学習状況">
+          <div class="metric"><span>LEVEL</span><strong>${level}</strong></div>
+          <div class="metric"><span>正答率</span><strong>${accuracy}%</strong></div>
+          <div class="metric"><span>連続正解</span><strong>${state.stats.streak}</strong></div>
+        </section>
+
+        <h2 class="section-title">モード</h2>
+        <section class="mode-grid">
+          <button class="mode-btn primary" type="button" data-mode="quick">
+            <span class="mode-head"><span class="mode-name">3分10問</span>${icon("play")}</span>
+            <span class="mode-meta">全範囲から短期集中</span>
+          </button>
+          <button class="mode-btn" type="button" data-mode="exam">
+            <span class="mode-head"><span class="mode-name">60問模試</span>${icon("clock")}</span>
+            <span class="mode-meta">60分タイマー</span>
+          </button>
+          <button class="mode-btn warn" type="button" data-mode="review">
+            <span class="mode-head"><span class="mode-name">弱点復習</span>${icon("target")}</span>
+            <span class="mode-meta">${weakCount ? `${weakCount}問を優先` : "ミス記録なし"}</span>
+          </button>
+          <button class="mode-btn" type="button" data-mode="random">
+            <span class="mode-head"><span class="mode-name">ランダム15問</span>${icon("spark")}</span>
+            <span class="mode-meta">テンポよく横断</span>
+          </button>
+        </section>
+
+        <h2 class="section-title">分野ステージ</h2>
+        <section class="stage-grid">
+          ${CHAPTERS.map(chapter => {
+            const c = state.stats.chapters?.[chapter.id] || { total: 0, correct: 0 };
+            const pct = c.total ? Math.round(c.correct / c.total * 100) : 0;
+            return `
+              <button class="stage-btn" type="button" data-mode="stage" data-chapter="${chapter.id}">
+                <span class="stage-dot" style="background:${chapter.color}"></span>
+                <span class="stage-name">${chapter.label}</span>
+                <span class="stage-score">${pct}%</span>
+              </button>
+            `;
+          }).join("")}
+        </section>
+
+        <p class="source-note">
+          GUGA公開シラバス・試験概要を参考にしたオリジナル問題です。<br>
+          <a href="https://guga.or.jp/outline/" target="_blank" rel="noopener">公式情報を確認</a>
+        </p>
+      `;
+
+      screens.home.querySelectorAll("[data-mode]").forEach(button => {
+        button.addEventListener("click", () => startSession(button.dataset.mode, button.dataset.chapter || null));
+      });
+    }
+
+    function startSession(mode, chapterId = null) {
+      stopTimer();
+      const basePool = chapterId
+        ? QUESTIONS.filter(q => q.chapter === chapterId)
+        : QUESTIONS.slice();
+      const weakIds = Object.entries(state.stats.mistakes || {})
+        .sort((a, b) => b[1] - a[1])
+        .map(([id]) => id);
+
+      let pool = basePool;
+      let limit = 10;
+      let timeLimit = 0;
+      let title = "3分10問";
+
+      if (mode === "quick") {
+        limit = 10;
+        timeLimit = 180;
+        title = "3分10問";
+      } else if (mode === "exam") {
+        limit = 60;
+        timeLimit = 3600;
+        title = "60問模試";
+      } else if (mode === "review") {
+        pool = weakIds.length
+          ? weakIds.map(id => QUESTIONS.find(q => q.id === id)).filter(Boolean)
+          : shuffle(QUESTIONS).filter((_, index) => index % 3 === 0);
+        limit = Math.min(10, Math.max(pool.length, 1));
+        title = "弱点復習";
+      } else if (mode === "stage") {
+        limit = 8;
+        title = chapterById(chapterId).short + "ステージ";
+      } else {
+        limit = 15;
+        title = "ランダム15問";
+      }
+
+      const questions = takeQuestions(pool, limit);
+      state.session = {
+        mode,
+        chapterId,
+        title,
+        questions,
+        index: 0,
+        selected: [],
+        answered: false,
+        sessionAnswers: [],
+        timeLeft: timeLimit,
+        timeLimit,
+        startedAt: Date.now()
+      };
+
+      showScreen("quiz");
+      renderQuiz();
+      if (timeLimit) startTimer();
+    }
+
+    function takeQuestions(pool, limit) {
+      const shuffled = shuffle(pool);
+      if (shuffled.length >= limit) return shuffled.slice(0, limit);
+      const result = shuffled.slice();
+      while (result.length < limit) {
+        result.push(...shuffle(QUESTIONS).slice(0, limit - result.length));
+      }
+      return result.slice(0, limit);
+    }
+
+    function shuffle(items) {
+      return items
+        .map(item => ({ item, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(entry => entry.item);
+    }
+
+    function startTimer() {
+      stopTimer();
+      state.session.timer = setInterval(() => {
+        if (!state.session) return stopTimer();
+        state.session.timeLeft -= 1;
+        if (state.session.timeLeft <= 0) {
+          state.session.timeLeft = 0;
+          finishSession();
+          return;
+        }
+        updateTimerDom();
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (state.session?.timer) {
+        clearInterval(state.session.timer);
+        state.session.timer = null;
+      }
+    }
+
+    function formatTime(seconds) {
+      const safe = Math.max(0, seconds || 0);
+      const min = String(Math.floor(safe / 60)).padStart(2, "0");
+      const sec = String(safe % 60).padStart(2, "0");
+      return `${min}:${sec}`;
+    }
+
+    function updateTimerDom() {
+      const timerEl = document.getElementById("timerValue");
+      if (timerEl && state.session) timerEl.textContent = formatTime(state.session.timeLeft);
+    }
+
+    function renderQuiz() {
+      const session = state.session;
+      const question = session.questions[session.index];
+      const chapter = chapterById(question.chapter);
+      const progress = Math.round((session.index) / session.questions.length * 100);
+      const isMulti = question.type === "multi";
+
+      screens.quiz.innerHTML = `
+        <section class="quiz-header">
+          <div class="hud-row">
+            <button class="icon-btn" id="homeBtn" type="button" aria-label="ホームへ戻る" title="ホームへ戻る">${icon("home")}</button>
+            <div class="progress-wrap">
+              <div class="progress-meta">
+                <span>${session.title}</span>
+                <span>${session.index + 1}/${session.questions.length}</span>
+              </div>
+              <div class="bar" aria-hidden="true"><span style="width:${progress}%"></span></div>
+            </div>
+            <div class="hud-pill">${session.timeLimit ? icon("clock") : icon("trophy")} <span id="timerValue">${session.timeLimit ? formatTime(session.timeLeft) : state.stats.streak}</span></div>
+          </div>
+        </section>
+        <section class="quiz-main">
+          <article class="question-panel">
+            <div class="chapter-tag" style="color:${chapter.color}">${icon("book")} ${chapter.label}${isMulti ? '<span class="multi-tag">複数選択</span>' : ""}</div>
+            <h2 class="question-text">${escapeHtml(question.text)}</h2>
+          </article>
+          <section class="answers" aria-label="選択肢">
+            ${question.choices.map((choice, index) => answerButton(question, index, choice)).join("")}
+          </section>
+          <section class="explain ${session.answered ? "show" : ""}" id="explainBox">
+            ${session.answered ? explanationMarkup(question) : ""}
+          </section>
+          <section class="action-row">
+            ${isMulti && !session.answered ? '<button class="primary-btn" id="submitBtn" type="button" disabled>' + icon("check") + '回答する</button>' : ""}
+            ${session.answered ? '<button class="primary-btn" id="nextBtn" type="button">' + (session.index + 1 === session.questions.length ? icon("trophy") + "結果を見る" : icon("arrow") + "次の問題") + '</button>' : ""}
+          </section>
+        </section>
+      `;
+
+      document.getElementById("homeBtn").addEventListener("click", () => {
+        if (confirm("このセッションを終了してホームへ戻りますか？")) {
+          stopTimer();
+          state.session = null;
+          renderHome();
+          showScreen("home");
+        }
+      });
+
+      screens.quiz.querySelectorAll(".answer-btn").forEach(button => {
+        button.addEventListener("click", () => selectAnswer(Number(button.dataset.index)));
+      });
+
+      const submit = document.getElementById("submitBtn");
+      if (submit) submit.addEventListener("click", submitAnswer);
+
+      const next = document.getElementById("nextBtn");
+      if (next) next.addEventListener("click", nextQuestion);
+    }
+
+    function answerButton(question, index, choice) {
+      const session = state.session;
+      const isSelected = session.selected.includes(index);
+      const answerSet = new Set(question.answer);
+      let className = "answer-btn";
+      if (isSelected) className += " selected";
+      if (session.answered && answerSet.has(index)) className += " correct";
+      if (session.answered && isSelected && !answerSet.has(index)) className += " wrong";
+      const disabled = session.answered ? "disabled" : "";
+      const labels = ["A", "B", "C", "D"];
+      return `
+        <button class="${className}" type="button" data-index="${index}" ${disabled}>
+          <span class="answer-key">${labels[index]}</span>
+          <span class="answer-text">${escapeHtml(choice)}</span>
+        </button>
+      `;
+    }
+
+    function selectAnswer(index) {
+      const session = state.session;
+      if (!session || session.answered) return;
+      const question = session.questions[session.index];
+      if (question.type === "multi") {
+        if (session.selected.includes(index)) {
+          session.selected = session.selected.filter(item => item !== index);
+        } else {
+          session.selected = [...session.selected, index].sort((a, b) => a - b);
+        }
+        renderQuiz();
+        const submit = document.getElementById("submitBtn");
+        if (submit) submit.disabled = session.selected.length === 0;
+      } else {
+        session.selected = [index];
+        submitAnswer();
+      }
+    }
+
+    function submitAnswer() {
+      const session = state.session;
+      const question = session.questions[session.index];
+      if (!session || session.answered || session.selected.length === 0) return;
+      const correct = sameAnswer(session.selected, question.answer);
+      session.answered = true;
+      session.sessionAnswers.push({ id: question.id, chapter: question.chapter, correct });
+      recordAnswer(question, correct);
+      saveStats();
+      renderQuiz();
+      showToast(correct ? `正解  +${lastXpGain(correct)}XP` : "不正解  解説を確認");
+    }
+
+    function sameAnswer(selected, answer) {
+      if (selected.length !== answer.length) return false;
+      const left = [...selected].sort((a, b) => a - b);
+      const right = [...answer].sort((a, b) => a - b);
+      return left.every((value, index) => value === right[index]);
+    }
+
+    function lastXpGain(correct) {
+      if (!correct) return 0;
+      return 12 + Math.min(Math.max(state.stats.streak - 1, 0) * 2, 12);
+    }
+
+    function recordAnswer(question, correct) {
+      const stats = state.stats;
+      stats.total += 1;
+      stats.chapters[question.chapter] ||= { total: 0, correct: 0 };
+      stats.chapters[question.chapter].total += 1;
+
+      if (correct) {
+        stats.correct += 1;
+        stats.chapters[question.chapter].correct += 1;
+        stats.streak += 1;
+        stats.bestStreak = Math.max(stats.bestStreak, stats.streak);
+        stats.xp += lastXpGain(true);
+        delete stats.mistakes[question.id];
+      } else {
+        stats.streak = 0;
+        stats.mistakes[question.id] = (stats.mistakes[question.id] || 0) + 1;
+      }
+    }
+
+    function recordSkipped(question) {
+      const stats = state.stats;
+      stats.total += 1;
+      stats.chapters[question.chapter] ||= { total: 0, correct: 0 };
+      stats.chapters[question.chapter].total += 1;
+      stats.streak = 0;
+      stats.mistakes[question.id] = (stats.mistakes[question.id] || 0) + 1;
+    }
+
+    function explanationMarkup(question) {
+      const session = state.session;
+      const latest = session.sessionAnswers[session.sessionAnswers.length - 1];
+      const good = latest?.correct;
+      return `
+        <div class="judge ${good ? "good" : "bad"}">
+          ${good ? icon("check") + "正解" : icon("x") + "不正解"}
+        </div>
+        <p>${escapeHtml(question.explanation)}</p>
+      `;
+    }
+
+    function nextQuestion() {
+      const session = state.session;
+      if (!session) return;
+      if (session.index + 1 >= session.questions.length) {
+        finishSession();
+        return;
+      }
+      session.index += 1;
+      session.selected = [];
+      session.answered = false;
+      renderQuiz();
+    }
+
+    function finishSession() {
+      const session = state.session;
+      if (!session) return;
+      stopTimer();
+      const answeredIds = new Set(session.sessionAnswers.map(item => item.id));
+      session.questions.forEach(question => {
+        if (!answeredIds.has(question.id)) {
+          session.sessionAnswers.push({ id: question.id, chapter: question.chapter, correct: false, skipped: true });
+          recordSkipped(question);
+        }
+      });
+      saveStats();
+      renderResult(session);
+      state.session = null;
+      showScreen("result");
+    }
+
+    function renderResult(session) {
+      const correct = session.sessionAnswers.filter(answer => answer.correct).length;
+      const total = session.questions.length;
+      const pct = Math.round(correct / total * 100);
+      const rank = pct >= 90 ? "S" : pct >= 75 ? "A" : pct >= 60 ? "B" : "C";
+      const summary = resultMessage(pct);
+      const chapterRows = CHAPTERS.map(chapter => {
+        const items = session.sessionAnswers.filter(answer => answer.chapter === chapter.id);
+        if (!items.length) return "";
+        const c = items.filter(answer => answer.correct).length;
+        return `
+          <div class="break-row">
+            <span class="break-name">${chapter.label}</span>
+            <span class="break-score">${c}/${items.length}</span>
+          </div>
+        `;
+      }).join("");
+
+      screens.result.innerHTML = `
+        <section class="result-panel">
+          ${rankSvg(rank)}
+          <p class="result-score">${pct}%</p>
+          <h2 class="result-title">${correct}/${total}問 正解</h2>
+          <p class="result-note">${summary}</p>
+        </section>
+        <section class="breakdown">${chapterRows}</section>
+        <section class="action-row">
+          <button class="primary-btn" id="againBtn" type="button">${icon("rotate")}もう一度</button>
+          <button class="ghost-btn" id="resultHomeBtn" type="button">${icon("home")}ホーム</button>
+        </section>
+      `;
+
+      document.getElementById("againBtn").addEventListener("click", () => {
+        startSession(session.mode, session.chapterId);
+      });
+      document.getElementById("resultHomeBtn").addEventListener("click", () => {
+        renderHome();
+        showScreen("home");
+      });
+    }
+
+    function resultMessage(pct) {
+      if (pct >= 90) return "本番形式でも安定しやすい状態です。弱点復習で取りこぼしを減らしましょう。";
+      if (pct >= 75) return "基礎はかなり固まっています。リスク・権利・プロンプトの細部を詰めましょう。";
+      if (pct >= 60) return "合格圏に近づいています。間違えた問題を短い間隔で復習しましょう。";
+      return "まずは各章ステージで用語と判断軸を固めるのが近道です。";
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(state.toastTimer);
+      state.toastTimer = setTimeout(() => toast.classList.remove("show"), 1400);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>
